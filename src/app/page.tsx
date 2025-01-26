@@ -1,6 +1,6 @@
 'use client';
 
-import { EntriesTable } from '@/modules/entries-table';
+import { WordEntriesTable } from '@/modules/entries-table';
 import { PdfEditor } from '@/modules/pdf-editor';
 import { PdfParser } from '@/modules/pdf-parser';
 import { ParsedPDF, parsePDF } from '@/utilities/parse-pdf';
@@ -10,11 +10,13 @@ import { useEffect, useState } from 'react';
 export default function Home() {
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [pdfData, setPdfData] = useState<ParsedPDF | null>(null);
+  const [text, setText] = useState<string>('');
 
   const handleParseFile = async (file: File) => {
     try {
       const parsedPdf = await parsePDF(URL.createObjectURL(file));
       setPdfData(parsedPdf);
+      setText(parsedPdf.html);
     } catch (error) {
       console.error('Error parsing PDF:', error);
     }
@@ -33,13 +35,8 @@ export default function Home() {
           <PdfParser setPdfFile={setPdfFile} />
         </div>
         <div className='flex gap-4 w-full'>
-          <PdfEditor
-            pdfFile={pdfFile}
-            setPdfFile={setPdfFile}
-            pdfData={pdfData}
-            pages={pdfData?.pageCount}
-          />
-          <EntriesTable pdfData={pdfData} />
+          <PdfEditor text={text} setText={setText} />
+          <WordEntriesTable text={text} />
         </div>
       </main>
     </div>

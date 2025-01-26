@@ -4,14 +4,15 @@ import { ParsedPDF } from '@/utilities/parse-pdf';
 import { useState } from 'react';
 
 type Props = {
-  pdfData: ParsedPDF | null;
+  text: string;
 };
 
-export function EntriesTable({ pdfData }: Props) {
+export function WordEntriesTable({ text }: Props) {
   const [entries, setEntries] = useState(30);
-  if (!pdfData || !pdfData.text) {
+  if (!text || !text) {
     return <div>No PDF data available.</div>;
   }
+
   // List of stop words to exclude
   const stopWords = new Set([
     'a',
@@ -55,27 +56,33 @@ export function EntriesTable({ pdfData }: Props) {
     'should',
     'may',
     'might',
-    '•',
     '&',
     '-',
     '|',
     'page',
+    'amp',
   ]);
+
+  // Remove <p>, </p>, and <br> tags from the text
+  const removeTags = (text: string) => {
+    return text.replace(/<p[^>]*>|<\/p>|<br[^>]*>/g, ' '); // Remove <p>, </p>, and <br> tags
+  };
+  // Process the text to count word occurrences and find first occurrences
+  const cleanText = removeTags(text); // Remove the <p> tags before processing
+  const words = cleanText.split(/\s+/); // Split text into words by whitespace
+  const wordMap = new Map<string, { count: number; firstIndex: number }>();
 
   // Regular expression to clean words
   const cleanWord = (word: string) =>
     word
-      .replace(/[.,:;!?()]/g, '')
+      .trim()
+      .replace(/[,:;!?()]/g, '')
       .replace(/^[^a-zа-яё]+|[^a-zа-яё]+$/gi, '')
       .toLowerCase();
 
-  // Process the text to count word occurrences and find first occurrences
-  const words = pdfData.text.split(/\s+/); // Split text into words by whitespace
-  const wordMap = new Map<string, { count: number; firstIndex: number }>();
-
   words.forEach((word, index) => {
     const normalizedWord = cleanWord(word);
-    if (!stopWords.has(normalizedWord) && normalizedWord) {
+    if (normalizedWord && !stopWords.has(normalizedWord)) {
       if (!wordMap.has(normalizedWord)) {
         wordMap.set(normalizedWord, { count: 1, firstIndex: index + 1 });
       } else {

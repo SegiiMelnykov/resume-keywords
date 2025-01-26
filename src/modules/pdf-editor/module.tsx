@@ -1,24 +1,21 @@
 'use client';
 
-import { ParsedPDF } from '@/utilities/parse-pdf';
 import { Dispatch, SetStateAction } from 'react';
 import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css'; // Для стилей редактора
+import 'react-quill/dist/quill.snow.css'; // For the editor styles
 
 type Props = {
-  pdfFile: File | null;
-  setPdfFile: Dispatch<SetStateAction<File | null>>;
-  pages: number | undefined;
-  pdfData: ParsedPDF | null;
+  text: string;
+  setText: Dispatch<SetStateAction<string>>;
 };
 
-export function PdfEditor({ pdfFile, pages, setPdfFile, pdfData }: Props) {
-  if (!pdfData?.text) return null;
-  console.log(pdfData?.text);
+export function PdfEditor({ text, setText }: Props) {
+  if (!text) return null;
+
   return (
-    <div className='min-w-[75%]'>
+    <div className='min-w-[65%]'>
       <h2 className='font-bold text-xl'>Edit that to improve</h2>
-      <ReactQuill value={pdfData.text} />
+      <ReactQuill value={text} onChange={setText} theme='snow' />
     </div>
   );
 }
