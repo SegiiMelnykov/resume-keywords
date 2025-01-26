@@ -23,6 +23,7 @@ export async function parsePDF(pdfUrl: string): Promise<ParsedPDF> {
       const content = await page.getTextContent();
       const pageText = content.items
         .map((item) => (item as TextItem).str)
+        .map((str) => str + '\n')
         .join(' ');
       extractedText += pageText + '\n';
     }

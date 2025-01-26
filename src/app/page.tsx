@@ -36,6 +36,7 @@ export default function Home() {
           <PdfEditor
             pdfFile={pdfFile}
             setPdfFile={setPdfFile}
+            pdfData={pdfData}
             pages={pdfData?.pageCount}
           />
           <EntriesTable pdfData={pdfData} />
