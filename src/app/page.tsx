@@ -1,11 +1,12 @@
 'use client';
 
-import { WordEntriesTable } from '@/modules/entries-table';
+import { WordEntriesTable } from '@/modules/word-entries-table';
 import { PdfEditor } from '@/modules/pdf-editor';
 import { PdfParser } from '@/modules/pdf-parser';
 import { ParsedPDF, parsePDF } from '@/utilities/parse-pdf';
 
 import { useEffect, useState } from 'react';
+import { PhraseEntriesTable } from '@/modules/phrase-entries-table';
 
 export default function Home() {
   const [pdfFile, setPdfFile] = useState<File | null>(null);
@@ -37,6 +38,7 @@ export default function Home() {
         <div className='flex gap-4 w-full'>
           <PdfEditor text={text} setText={setText} />
           <WordEntriesTable text={text} />
+          <PhraseEntriesTable text={text} />
         </div>
       </main>
     </div>

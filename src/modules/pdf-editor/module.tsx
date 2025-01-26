@@ -13,7 +13,7 @@ export function PdfEditor({ text, setText }: Props) {
   if (!text) return null;
 
   return (
-    <div className='min-w-[65%]'>
+    <div className='min-w-[50%]'>
       <h2 className='font-bold text-xl'>Edit that to improve</h2>
       <ReactQuill value={text} onChange={setText} theme='snow' />
     </div>

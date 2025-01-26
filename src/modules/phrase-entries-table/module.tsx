@@ -1,6 +1,5 @@
 'use client';
 import { Dropdown } from '@/components/dropdown';
-import { ParsedPDF } from '@/utilities/parse-pdf';
 import { useState } from 'react';
 
 type Props = {
@@ -9,99 +8,45 @@ type Props = {
 
 export function PhraseEntriesTable({ text }: Props) {
   const [entries, setEntries] = useState(30);
-  if (!text || !text) {
+
+  if (!text) {
     return <div>No PDF data available.</div>;
   }
-
-  console.log('rerender');
-
-  // List of stop words to exclude
-  const stopWords = new Set([
-    'a',
-    'an',
-    'the',
-    'and',
-    'or',
-    'but',
-    'is',
-    'by',
-    'to',
-    'of',
-    'in',
-    'on',
-    'with',
-    'for',
-    'as',
-    'at',
-    'from',
-    'this',
-    'that',
-    'it',
-    'be',
-    'was',
-    'were',
-    'are',
-    'has',
-    'had',
-    'have',
-    'not',
-    'no',
-    'yes',
-    'do',
-    'does',
-    'did',
-    'will',
-    'would',
-    'can',
-    'could',
-    'shall',
-    'should',
-    'may',
-    'might',
-    '&',
-    '-',
-    '|',
-    'page',
-    'amp',
-  ]);
 
   // Remove <p>, </p>, and <br> tags from the text
   const removeTags = (text: string) => {
     return text.replace(/<p[^>]*>|<\/p>|<br[^>]*>/g, ' '); // Remove <p>, </p>, and <br> tags
   };
+
   // Process the text to count word occurrences and find first occurrences
   const cleanText = removeTags(text); // Remove the <p> tags before processing
   const words = cleanText.split(/\s+/); // Split text into words by whitespace
-  const wordMap = new Map<string, { count: number; firstIndex: number }>();
 
-  // Regular expression to clean words
-  const cleanWord = (word: string) =>
-    word
-      .trim()
-      .replace(/[,:;!?()]/g, '')
-      .replace(/^[^a-zа-яё]+|[^a-zа-яё]+$/gi, '')
-      .toLowerCase();
+  const phrases = new Map<string, { count: number; firstIndex: number }>();
 
-  words.forEach((word, index) => {
-    const normalizedWord = cleanWord(word);
-    if (normalizedWord && !stopWords.has(normalizedWord)) {
-      if (!wordMap.has(normalizedWord)) {
-        wordMap.set(normalizedWord, { count: 1, firstIndex: index + 1 });
-      } else {
-        const entry = wordMap.get(normalizedWord)!;
-        entry.count += 1;
+  // Collect phrases of 2-4 words
+  for (let i = 0; i < words.length; i++) {
+    for (let length = 2; length <= 4; length++) {
+      const phrase = words.slice(i, i + length).join(' ');
+      if (phrase.split(' ').length === length) {
+        if (phrases.has(phrase)) {
+          const { count, firstIndex } = phrases.get(phrase)!;
+          phrases.set(phrase, { count: count + 1, firstIndex });
+        } else {
+          phrases.set(phrase, { count: 1, firstIndex: i });
+        }
       }
     }
-  });
+  }
 
-  const wordEntries = Array.from(wordMap.entries())
-    .map(([word, { count, firstIndex }]) => ({
-      word,
+  const phrasesEntries = Array.from(phrases.entries())
+    .map(([phrase, { count, firstIndex }]) => ({
+      phrase,
       count,
       firstIndex,
     }))
     .sort((a, b) => b.count - a.count) // Sort by count in descending order
-    .slice(0, entries); // Take only the first 25 entries
+    .slice(0, entries);
 
   return (
     <div className='grow'>
@@ -117,15 +62,15 @@ export function PhraseEntriesTable({ text }: Props) {
         <table className='w-full border-collapse'>
           <thead>
             <tr>
-              <th className='border border-gray-400 p-1'>Word</th>
+              <th className='border border-gray-400 p-1'>Phrase</th>
               <th className='border border-gray-400 p-1'>Count</th>
               <th className='border border-gray-400 p-1'>First Occurrence</th>
             </tr>
           </thead>
           <tbody>
-            {wordEntries.map(({ word, count, firstIndex }) => (
-              <tr key={word}>
-                <td className='border border-gray-400 p-1'>{word}</td>
+            {phrasesEntries.map(({ phrase, count, firstIndex }) => (
+              <tr key={phrase}>
+                <td className='border border-gray-400 p-1'>{phrase}</td>
                 <td className='border border-gray-400 p-1'>{count}</td>
                 <td className='border border-gray-400 p-1'>{firstIndex}</td>
               </tr>
