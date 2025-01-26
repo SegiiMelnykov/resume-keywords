@@ -33,7 +33,11 @@ export default function Home() {
           <PdfParser setPdfFile={setPdfFile} />
         </div>
         <div className='flex gap-4 w-full'>
-          <PdfEditor pdfData={pdfData} />
+          <PdfEditor
+            pdfFile={pdfFile}
+            setPdfFile={setPdfFile}
+            pages={pdfData?.pageCount}
+          />
           <EntriesTable pdfData={pdfData} />
         </div>
       </main>
